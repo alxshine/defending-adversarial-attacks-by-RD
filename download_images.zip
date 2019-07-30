@@ -1,0 +1,4 @@
+#!/bin/sh
+
+wget https://cuicloud.unige.ch/index.php/s/QcSPGSLSRCzc2gm/download -O images.zip
+unzip -q images.zip
