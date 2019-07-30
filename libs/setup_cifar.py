@@ -5,13 +5,15 @@
  This program is licenced under the BSD 2-Clause licence,
  contained in the LICENCE file in this directory. """
 
+import os
+import urllib
+
 import numpy as np
 import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras.optimizers import SGD, Adam
-
 
 # def load_batch(fpath, label_key='labels'):
 #     """  """
@@ -52,77 +54,48 @@ def load_batch(file_path):
     return np.array(images), np.array(labels)
 
 
-# class CIFAR:
-#     def __init__(self):
-#         train_data = []
-#         train_labels = []
+def load_cifar_data():
+    """ load CIFAR data """
+    train_data = []
+    train_labels = []
 
-#         if not os.path.exists("cifar-10-batches-bin"):
-#             urllib.request.urlretrieve(
-#                 "https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz",
-#                 "cifar-data.tar.gz")
-#             os.popen("tar -xzf cifar-data.tar.gz").read()
+    if not os.path.exists("cifar-10-batches-bin"):
+        urllib.request.urlretrieve(
+            "https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz",
+            "cifar-data.tar.gz")
+        os.popen("tar -xzf cifar-data.tar.gz").read()
 
-#         for i in range(5):
-#             r, s = load_batch("cifar-10-batches-bin/data_batch_" + str(i + 1) +
-#                               ".bin")
-#             train_data.extend(r)
-#             train_labels.extend(s)
+    for i in range(5):
+        data, labels = load_batch("cifar-10-batches-bin/data_batch_" +
+                                  str(i + 1) + ".bin")
+        train_data.extend(data)
+        train_labels.extend(labels)
 
-#         train_data = np.array(train_data, dtype=np.float32)
-#         train_labels = np.array(train_labels)
+    train_data = np.array(train_data, dtype=np.float32)
+    train_labels = np.array(train_labels)
 
-#         self.test_data, self.test_labels = load_batch(
-#             "cifar-10-batches-bin/test_batch.bin")
+    test_data, test_labels = load_batch("cifar-10-batches-bin/test_batch.bin")
 
-#         VALIDATION_SIZE = 5000
+    validation_size = 5000
 
-#         self.validation_data = train_data[:VALIDATION_SIZE, :, :, :]
-#         self.validation_labels = train_labels[:VALIDATION_SIZE]
-#         self.train_data = train_data[VALIDATION_SIZE:, :, :, :]
-#         self.train_labels = train_labels[VALIDATION_SIZE:]
+    validation_data = train_data[:validation_size, :, :, :]
+    validation_labels = train_labels[:validation_size]
+    train_data = train_data[validation_size:, :, :, :]
+    train_labels = train_labels[validation_size:]
 
-
-# class CIFARModel:
-#     def __init__(self, restore, session=None):
-#         self.num_channels = 3
-#         self.image_size = 32
-#         self.num_labels = 10
-
-#         model = Sequential()
-
-#         model.add(Conv2D(64, (3, 3), input_shape=(32, 32, 3)))
-#         model.add(Activation('relu'))
-#         model.add(Conv2D(64, (3, 3)))
-#         model.add(Activation('relu'))
-#         model.add(MaxPooling2D(pool_size=(2, 2)))
-
-#         model.add(Conv2D(128, (3, 3)))
-#         model.add(Activation('relu'))
-#         model.add(Conv2D(128, (3, 3)))
-#         model.add(Activation('relu'))
-#         model.add(MaxPooling2D(pool_size=(2, 2)))
-
-#         model.add(Flatten())
-#         model.add(Dense(256))
-#         model.add(Activation('relu'))
-#         model.add(Dense(256))
-#         model.add(Activation('relu'))
-#         model.add(Dense(10))
-
-#         model.load_weights(restore)
-
-#         self.model = model
-
-#     def predict(self, data):
-#         return self.model(data)
+    return {
+        'validation_data': validation_data,
+        'validation_labels': validation_labels,
+        'train_data': train_data,
+        'train_labels': train_labels,
+        'test_data': test_data,
+        'test_labels': test_labels
+    }
 
 
 class CIFARModelAllLayers:
     """ creates model for a single CIFAR channel """
-    def __init__(self,
-                 layer_sizes=None,
-                 init=None):
+    def __init__(self, layer_sizes=None, init=None):
 
         self.train_temp = 1
 
@@ -164,10 +137,7 @@ class CIFARModelAllLayers:
                                                        logits=predicted /
                                                        self.train_temp)
 
-    def train(self,
-              data,
-              mode_save_file,
-              train_params):
+    def train(self, data, mode_save_file, train_params):
         """ train with given parameters
         Arguments:
         data (np.ndarray) : data to train on

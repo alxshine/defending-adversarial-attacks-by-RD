@@ -7,6 +7,8 @@
 """
 
 import gzip
+import os
+import urllib
 import numpy as np
 
 import tensorflow as tf
@@ -35,6 +37,80 @@ def extract_labels(filename, num_images):
         buf = bytestream.read(1 * num_images)
         labels = np.frombuffer(buf, dtype=np.uint8)
     return (np.arange(10) == labels[:, None]).astype(np.float32)
+
+
+def load_mnist_data():
+    """ load MNIST data """
+    if not os.path.exists("data"):
+        os.mkdir("data")
+        files = [
+            "train-images-idx3-ubyte.gz", "t10k-images-idx3-ubyte.gz",
+            "train-labels-idx1-ubyte.gz", "t10k-labels-idx1-ubyte.gz"
+        ]
+        for name in files:
+            urllib.request.urlretrieve(
+                'http://yann.lecun.com/exdb/mnist/' + name, "data/" + name)
+
+    train_data = extract_data("data/train-images-idx3-ubyte.gz", 60000)
+    train_labels = extract_labels("data/train-labels-idx1-ubyte.gz", 60000)
+    test_data = extract_data("data/t10k-images-idx3-ubyte.gz", 10000)
+    test_labels = extract_labels("data/t10k-labels-idx1-ubyte.gz", 10000)
+
+    validation_size = 5000
+
+    validation_data = train_data[:validation_size, :, :, :]
+    validation_labels = train_labels[:validation_size]
+    train_data = train_data[validation_size:, :, :, :]
+    train_labels = train_labels[validation_size:]
+
+    return {
+        'validation_data': validation_data,
+        'validation_labels': validation_labels,
+        'train_data': train_data,
+        'train_labels': train_labels,
+        'test_data': test_data,
+        'test_labels': test_labels
+    }
+
+
+def load_fashion_mnist_data():
+    """ load Fashion-MNIST data """
+    if not os.path.exists("data/fashion-mnist"):
+        os.mkdir("data/fashion-mnist")
+        files = [
+            "train-images-idx3-ubyte.gz", "t10k-images-idx3-ubyte.gz",
+            "train-labels-idx1-ubyte.gz", "t10k-labels-idx1-ubyte.gz"
+        ]
+        for name in files:
+
+            urllib.request.urlretrieve(
+                'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/' +
+                name, "data/fashion-mnist/" + name)
+
+    train_data = extract_data("data/fashion-mnist/train-images-idx3-ubyte.gz",
+                              60000)
+    train_labels = extract_labels(
+        "data/fashion-mnist/train-labels-idx1-ubyte.gz", 60000)
+    test_data = extract_data("data/fashion-mnist/t10k-images-idx3-ubyte.gz",
+                             10000)
+    test_labels = extract_labels(
+        "data/fashion-mnist/t10k-labels-idx1-ubyte.gz", 10000)
+
+    validation_size = 5000
+
+    validation_data = train_data[:validation_size, :, :, :]
+    validation_labels = train_labels[:validation_size]
+    train_data = train_data[validation_size:, :, :, :]
+    train_labels = train_labels[validation_size:]
+
+    return {
+        'validation_data': validation_data,
+        'validation_labels': validation_labels,
+        'train_data': train_data,
+        'train_labels': train_labels,
+        'test_data': test_data,
+        'test_labels': test_labels
+    }
 
 
 class MNISTModelAllLayers:
@@ -67,7 +143,7 @@ class MNISTModelAllLayers:
         model.add(Dense(layer_sizes[4]))
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(params[5]))
+        model.add(Dense(layer_sizes[5]))
         model.add(Activation('relu'))
         model.add(Dense(10))
 
@@ -92,7 +168,7 @@ class MNISTModelAllLayers:
             which all correspond to keras traning parameters
         Returns:
         the trained keras model
- """
+        """
 
         if train_params['optimizer'] == "sgd":
             opt = SGD(lr=train_params['learning_rate'],

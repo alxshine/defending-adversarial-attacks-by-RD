@@ -5,8 +5,8 @@ import os
 import keras
 import tensorflow as tf
 
-from libs.setup_mnist import MNIST, MNISTModelAllLayers, FashionMNIST
-from libs.setup_cifar import CIFAR, CIFARModelAllLayers
+import libs.setup_mnist as setup_mnist
+import libs.setup_cifar as setup_cifar
 import libs.model_multi_channel as mcm
 
 #######################################################
@@ -50,21 +50,21 @@ def train(model_type, epochs, optimizer, learning_rate, batch_size):
 
         # training data and parameters
         if model_type == "mnist":
-            data = MNIST()
+            data = setup_mnist.load_mnist_data()
             nn_layer_sizes = [32, 32, 64, 64, 200, 200]
-            model = MNISTModelAllLayers(nn_layer_sizes, session=sess)
+            model = setup_mnist.MNISTModelAllLayers(nn_layer_sizes)
             image_size = 28
             num_channels = 1
         elif model_type == "fashion_mnist":
-            data = FashionMNIST()
+            data = setup_mnist.load_fashion_mnist_data()
             nn_layer_sizes = [32, 32, 64, 64, 200, 200]
-            model = MNISTModelAllLayers(nn_layer_sizes, session=sess)
+            model = setup_mnist.MNISTModelAllLayers(nn_layer_sizes)
             image_size = 28
             num_channels = 1
         elif model_type == "cifar":
-            data = CIFAR()
+            data = setup_cifar.load_cifar_data()
             nn_layer_sizes = [64, 64, 128, 128, 256, 256]
-            model = CIFARModelAllLayers(nn_layer_sizes, session=sess)
+            model = setup_cifar.CIFARModelAllLayers(nn_layer_sizes)
             image_size = 32
             num_channels = 3
 
@@ -86,6 +86,7 @@ def train(model_type, epochs, optimizer, learning_rate, batch_size):
 
 
 def main():
+    """ main function for training """
     parser = argparse.ArgumentParser(
         description="Train multi-channel system with randomized diversification.")
     parser.add_argument("--type", default="mnist", help="The dataset.")
