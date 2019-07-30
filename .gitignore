@@ -1,2 +1,4 @@
 data/attacked
-images.zip
+*.zip
+*.gz
+*.npy
