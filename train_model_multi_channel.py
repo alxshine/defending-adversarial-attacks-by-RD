@@ -73,7 +73,7 @@ def train(model_type, epochs, optimizer, learning_rate, batch_size):
         multi_channel_model = mcm.MultiChannel(model,
                                                type=model_type,
                                                epochs=epochs,
-                                               optimazer=optimizer,
+                                               optimizer=optimizer,
                                                learning_rate=learning_rate,
                                                batch_size=batch_size,
                                                permt=channels_per_subband,

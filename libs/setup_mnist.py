@@ -182,11 +182,11 @@ class MNISTModelAllLayers:
                            optimizer=opt,
                            metrics=['accuracy'])
 
-        self.model.fit(data.train_data,
-                       data.train_labels,
+        self.model.fit(data['train_data'],
+                       data['train_labels'],
                        batch_size=train_params['batch_size'],
-                       validation_data=(data.validation_data,
-                                        data.validation_labels),
+                       validation_data=(data['validation_data'],
+                                        data['validation_labels']),
                        epochs=train_params['num_epochs'],
                        verbose=2,
                        shuffle=True)
