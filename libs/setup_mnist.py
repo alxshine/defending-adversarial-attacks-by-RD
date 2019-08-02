@@ -158,11 +158,11 @@ class MNISTModelAllLayers:
                                                        self.train_temp,
                                                        labels=correct)
 
-    def train(self, data, mode_save_file, train_params):
+    def train(self, data, model_save_file, train_params):
         """ train using supplied parameters
         Arguments:
         data (np.ndarray) : data to train on
-        mode_save_file (str) : mode_save_file to save model in
+        model_save_file (str) : filename where to save trained model
         train_params (dict) : dictionary containing
             ['learning_rate', 'optimizer', 'batch_size', 'num_epochs'],
             which all correspond to keras traning parameters
@@ -191,8 +191,9 @@ class MNISTModelAllLayers:
                        verbose=2,
                        shuffle=True)
 
-        if mode_save_file is not None:
-            self.model.save(mode_save_file)
+        if model_save_file is not None:
+            print("Saving model to {}".format(model_save_file))
+            self.model.save(model_save_file)
 
         return self.model
 

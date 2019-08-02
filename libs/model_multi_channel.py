@@ -91,7 +91,7 @@ class MultiChannel():
                 # --- load model ----
                 pref = self.model_dir + "/" + self.name % (subband, p)
                 model = copy.deepcopy(self.model)
-                model.load(pref + "_epochs_%d" % epochs[i])
+                model.model.load_weights(pref + "_epochs_%d" % epochs[i])
                 self.NET.append(model)
                 # --- end load model ----
 

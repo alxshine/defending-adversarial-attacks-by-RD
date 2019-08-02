@@ -2,12 +2,14 @@
 
 import argparse
 import keras
+import tensorflow as tf
+import numpy as np
 
-from setup_mnist import *
-from setup_cifar import *
+from libs.setup_mnist import MNISTModelAllLayers
+from libs.setup_cifar import CIFARModelAllLayers
 import libs.model_multi_channel as mcm
 
-########################################################################################################################
+#############################################################################
 parser = argparse.ArgumentParser(description="Train multi-channel system with randomized diversification.")
 parser.add_argument("--type", default="mnist", help="The dataset type.")
 parser.add_argument("--data_dir", default="data/attacked", help="The dataset path.")
@@ -22,7 +24,7 @@ parser.add_argument("--attack_type", default="carlini_l2", help="The attack type
 
 args = parser.parse_args()
 
-########################################################################################################################
+#############################################################################
 
 def prepare_data_for_classification(data, IMAGE_SIZE, N_CHANELS):
     test = data.reshape(-1, IMAGE_SIZE, IMAGE_SIZE, N_CHANELS)
@@ -49,17 +51,17 @@ if __name__ == "__main__":
         # test data and parameters
         if args.type == "mnist":
             nn_param = [32, 32, 64, 64, 200, 200]
-            model = MNISTModelAllLayers(nn_param, session=sess)
+            model = MNISTModelAllLayers(nn_param)
             IMAGE_SIZE = 28
             N_CHANELS = 1
         elif args.type == "fashion_mnist":
             nn_param = [32, 32, 64, 64, 200, 200]
-            model = MNISTModelAllLayers(nn_param, session=sess)
+            model = MNISTModelAllLayers(nn_param)
             IMAGE_SIZE = 28
             N_CHANELS = 1
         elif args.type == "cifar":
             nn_param = [64, 64, 128, 128, 256, 256]
-            model = CIFARModelAllLayers(nn_param, session=sess)
+            model = CIFARModelAllLayers(nn_param)
             IMAGE_SIZE = 32
             N_CHANELS = 3
 
@@ -71,7 +73,7 @@ if __name__ == "__main__":
                                                model_dir     = MODEL_DIR,
                                                img_size      = IMAGE_SIZE,
                                                img_channels  = N_CHANELS)
-        multi_channel_model.test_init(sess, nn_param, EPOCHS)
+        multi_channel_model.test_init(EPOCHS)
 
 
         # --------------------------------------------------------------------------------------------------------------
