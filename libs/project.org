@@ -1,0 +1,7 @@
+** Thoughts on the code
+The epochs are used twice.
+In the MultiChannel class (which seems to represent the entire multichannel classifier), the underlying model is trained for [[file:model_multi_channel.py::for%20epoch%20in%20range(self.epochs):][1000 "epochs"]].
+However, in every of these "epochs", the underlying model, is also trained for [[file:setup_mnist.py::def%20train(self,%20data,%20model_save_file,%20train_params):][1000 actual epochs]].
+This leads to massive runtimes during training.
+
+I removed this, and will start training anew, this time it hopefully actually finishes...

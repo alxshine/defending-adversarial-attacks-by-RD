@@ -75,11 +75,10 @@ class MultiChannel():
                     'batch_size': self.batch_size,
                     'num_epochs': self.epochs
                 }
-                for epoch in range(self.epochs):
-                    self.model.train(
-                        data,
-                        self.model_dir + "/" + name + "_epochs_%d" % epoch,
-                        train_params)
+                # for epoch in range(self.epochs):
+                self.model.train(
+                    data, self.model_dir + "/" + name + "_epochs_%d" % self.epochs,
+                    train_params)
 
     def test_init(self, epochs):
         """ initialize model from saved checkpoint """
