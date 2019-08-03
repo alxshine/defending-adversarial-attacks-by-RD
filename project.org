@@ -1,0 +1,14 @@
+* Thoughs on the code
+** Epoch bug
+The epochs are used twice.
+In the MultiChannel class (which seems to represent the entire multichannel classifier), the underlying model is trained for [[file:model_multi_channel.py::for%20epoch%20in%20range(self.epochs):][1000 "epochs"]].
+However, in every of these "epochs", the underlying model, is also trained for [[file:setup_mnist.py::def%20train(self,%20data,%20model_save_file,%20train_params):][1000 actual epochs]].
+This leads to massive runtimes during training.
+
+I removed this, and will start training anew, this time it hopefully actually finishes...
+
+** "Multi" model
+During the training the multi model trains [[file:model_multi_channel.py::self.model.train(][the same underlying model]] again and again, once for every permutation on every subband.
+Even though the underlying model is [[file:setup_mnist.py::self.model.compile(loss=self.loss_function,][compiled]] again every time, the weights are not reset [[https://stackoverflow.com/questions/47995324/does-model-compile-initialize-all-the-weights-and-biases-in-keras-tensorflow][according to StackOverflow]].
+This means that every permutation and every subband, except for the first permutation in the first subband, is based on a pretrained model.
+I'm not sure if this is intended.
