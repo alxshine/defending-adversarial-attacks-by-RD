@@ -80,7 +80,8 @@ def train(model_type, epochs, optimizer, learning_rate, batch_size):
                                                subbands=dct_subbands,
                                                model_dir=model_save_dir,
                                                img_size=image_size,
-                                               img_channels=num_channels)
+                                               img_channels=num_channels,
+                                               is_zero=True)
         # multi-channel model training
         multi_channel_model.train(data)
 
