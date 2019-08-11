@@ -2,3 +2,4 @@ data/attacked
 *.zip
 *.gz
 *.npy
+*__pycache__*
