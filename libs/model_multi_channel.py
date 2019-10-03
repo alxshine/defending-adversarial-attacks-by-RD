@@ -58,8 +58,8 @@ class MultiChannel():
         self.permutation = []
 
         self.model_dir = model_dir
-        self.name = self.type + "_is_zero_" + str(
-            self.is_zero) + "_subband_%s_p%d"
+        self.name = self.type + "_" + str(
+            self.permutation_mode.name) + "_permutation_subband_%s_p%d"
 
     def train(self, data):
         """ Train the multi-channel model on data """
@@ -74,7 +74,9 @@ class MultiChannel():
 
                 # dct subband permutation per channel
                 permutation = self.generate_sign_permutation(subband)
-                np.save(self.model_dir + "/permutation_" + name, permutation)
+                permutation_file_name = self.model_dir + '/permutation_' + name
+                print('saving permutation to %s' % permutation_file_name)
+                np.save(permutation_file_name, permutation)
                 data['train_data'] = self.apply_dct_permutation(
                     data['train_data'], permutation)
                 data['validation_data'] = self.apply_dct_permutation(
@@ -148,8 +150,10 @@ class MultiChannel():
         return np.reshape(data, dim)
 
     def generate_sign_permutation(self, subband=""):
-        if self.mode == "zero":
+        if self.permutation_mode == PermutationMode.zero:
             permutation = np.zeros((1, self.image_size**2))
+        elif self.permutation_mode == PermutationMode.identity:
+            permutation = np.ones((1, self.image_size**2))
         else:
             permutation = np.random.normal(size=self.image_size**2)
             permutation[permutation >= 0] = 1
