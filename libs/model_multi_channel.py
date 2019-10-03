@@ -4,8 +4,9 @@ import numpy as np
 from datetime import datetime
 from scipy.fftpack import dct, idct
 import copy
+from enum import Enum
 
-# ===============================================================================================
+PermutationMode = Enum('Permutation', 'full zero identity')
 
 
 class MultiChannel():
@@ -21,7 +22,7 @@ class MultiChannel():
                  model_dir="",
                  img_size=28,
                  img_channels=1,
-                 is_zero=False,
+                 permutation_mode='full',
                  use_cuda=True):
 
         super(MultiChannel, self).__init__()
@@ -29,9 +30,20 @@ class MultiChannel():
         self.image_size = img_size
         self.n_channel = img_channels
         self.use_cuda = use_cuda
-        self.is_zero = is_zero
 
         self.type = type
+        if permutation_mode == 'full':
+            self.permutation_mode = PermutationMode.full
+        elif permutation_mode == 'zero':
+            self.permutation_mode = PermutationMode.zero
+        elif permutation_mode == 'identity':
+            self.permutation_mode = PermutationMode.identity
+        else:
+            raise ValueError(
+                """Unknown permutation mode %s, use one of:
+-full
+-zero
+-identity""" % permutation_mode)
 
         self.model = model
         self.epochs = epochs
@@ -51,8 +63,8 @@ class MultiChannel():
 
     def train(self, data):
         """ Train the multi-channel model on data """
-        for p in self.P:  # number of channels per subband
-            for subband in self.SUBBANDS:  # dct subbands
+        for subband in self.SUBBANDS:  # dct subbands
+            for p in self.P:  # number of channels per subband
 
                 print("\n\n" + datetime.now().strftime("%Y-%m-%d %H:%M:%S") +
                       ": TYPE = %s, p = %d, subband=%s\n\n" %
@@ -61,7 +73,7 @@ class MultiChannel():
                 name = self.name % (subband, p)
 
                 # dct subband permutation per channel
-                permutation = self.signPermutation(subband)
+                permutation = self.generate_sign_permutation(subband)
                 np.save(self.model_dir + "/permutation_" + name, permutation)
                 data['train_data'] = self.apply_dct_permutation(
                     data['train_data'], permutation)
@@ -135,8 +147,8 @@ class MultiChannel():
 
         return np.reshape(data, dim)
 
-    def signPermutation(self, subband=""):
-        if self.is_zero:
+    def generate_sign_permutation(self, subband=""):
+        if self.mode == "zero":
             permutation = np.zeros((1, self.image_size**2))
         else:
             permutation = np.random.normal(size=self.image_size**2)

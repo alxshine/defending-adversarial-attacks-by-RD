@@ -25,7 +25,8 @@ def make_dir(dir_name):
 #######################################################
 
 
-def train(model_type, epochs, optimizer, learning_rate, batch_size):
+def train(model_type, epochs, optimizer, learning_rate, batch_size,
+          permutation_mode):
     """ Train a multi-channel model
 
     Args:
@@ -81,7 +82,7 @@ def train(model_type, epochs, optimizer, learning_rate, batch_size):
                                                model_dir=model_save_dir,
                                                img_size=image_size,
                                                img_channels=num_channels,
-                                               is_zero=False)
+                                               permutation_mode=permutation_mode)
         # multi-channel model training
         multi_channel_model.train(data)
 
@@ -93,8 +94,8 @@ def main():
     parser.add_argument("--type", default="mnist", help="The dataset.")
     parser.add_argument("--save_to", default="models",
                         help="Path where to save models.")
-    parser.add_argument("--is_zero", default=False, type=int,
-                        help="Is to use hard thresholding.")
+    parser.add_argument("--permutation", default="full",
+                        help="Specify permutation mode: full, zero (thresholding), or identity.")
     parser.add_argument("--epochs", default=50, type=int,
                         help="The number of epochs.")
     parser.add_argument("--lr", default=1e-3, type=float,
@@ -105,8 +106,8 @@ def main():
                         type=int, help="Batch size.")
 
     args = parser.parse_args()
-
-    train(args.type, args.epochs, args.optimizer, args.lr, args.batch_size)
+    train(args.type, args.epochs, args.optimizer,
+          args.lr, args.batch_size, args.permutation)
 
 
 if __name__ == "__main__":
